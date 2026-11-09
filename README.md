@@ -1,2 +1,2 @@
 # phonk-generator-2026-no-virus
-definitely not vibe coded trust me bro
+there is no virus i Didn't lye btw
