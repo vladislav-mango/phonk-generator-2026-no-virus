@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phonk Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.14), transparent 40%),
+        linear-gradient(135deg, #0b0c0f, #11151a 40%, #090a0d);
+      color: #f2f2f2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app {
+      width: min(980px, 92vw);
+      background: rgba(18, 20, 24, 0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+    }
+    h1 {
+      margin: 0 0 18px;
+      font-size: 28px;
+      letter-spacing: 1px;
+      color: #f5e7a1;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 24px;
+    }
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #d7d7d7;
+    }
+    input[type="file"], input[type="range"], select, button {
+      width: 100%;
+      margin-top: 8px;
+    }
+    input[type="range"] {
+      accent-color: #d4ff6a;
+    }
+    button {
+      background: linear-gradient(135deg, #d4ff6a, #88d45a);
+      color: #111;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+    button:hover {
+      filter: brightness(1.05);
+    }
+    .preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    audio {
+      width: 100%;
+      margin-top: 14px;
+      filter: saturate(1.1) brightness(1.08);
+    }
+    .value {
+      float: right;
+      color: #d4ff6a;
+      font-weight: bold;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>NOCTURNE PHONK</h1>
+
+    <div class="grid">
+      <div class="panel">
+        <label>
+          Choose music
+          <input id="fileInput" type="file" accept="audio/*" />
+        </label>
+
+        <label>
+          Bass
+          <span class="value" id="bassVal">1.0x</span>
+          <input id="bass" type="range" min="0.5" max="2.5" step="0.1" value="1.0" />
+        </label>
+
+        <label>
+          Drive
+          <span class="value" id="driveVal">0.8</span>
+          <input id="drive" type="range" min="0" max="2" step="0.05" value="0.8" />
+        </label>
+
+        <label>
+          Reverb
+          <span class="value" id="reverbVal">0.4</span>
+          <input id="reverb" type="range" min="0" max="1" step="0.05" value="0.4" />
+        </label>
+
+        <label>
+          Pitch
+          <span class="value" id="pitchVal">1.0x</span>
+          <input id="pitch" type="range" min="0.7" max="1.5" step="0.05" value="1.0" />
+        </label>
+
+        <label>
+          Style
+          <select id="style">
+            <option value="classic">Classic Phonk</option>
+            <option value="dark">Dark Drift</option>
+            <option value="lofi">Lo-Fi Tape</option>
+            <option value="night">Night Drive</option>
+          </select>
+        </label>
+
+        <button id="exportBtn">Export WAV</button>
+      </div>
+
+      <div class="panel">
+        <div class="preview">
+          <audio id="audioPreview" controls></audio>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const audioPreview = document.getElementById('audioPreview');
+    const exportBtn = document.getElementById('exportBtn');
+
+    const controls = {
+      bass: document.getElementById('bass'),
+      drive: document.getElementById('drive'),
+      reverb: document.getElementById('reverb'),
+      pitch: document.getElementById('pitch')
+    };
+
+    const labels = {
+      bass: document.getElementById('bassVal'),
+      drive: document.getElementById('driveVal'),
+      reverb: document.getElementById('reverbVal'),
+      pitch: document.getElementById('pitchVal')
+    };
+
+    function updateValue(name) {
+      const value = controls[name].value;
+      if (name === 'bass' || name === 'pitch') {
+        labels[name].textContent = value + 'x';
+      } else {
+        labels[name].textContent = Number(value).toFixed(2);
+      }
+    }
+
+    Object.keys(controls).forEach(key => {
+      controls[key].addEventListener('input', () => updateValue(key));
+    });
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
+      audioPreview.src = url;
+      audioPreview.load();
+    });
+
+    function createPhonkAudioBuffer(audioBuffer) {
+      const sampleRate = audioBuffer.sampleRate;
+      const channels = audioBuffer.numberOfChannels;
+      const length = audioBuffer.length;
+      const output = new AudioBuffer({
+        length,
+        numberOfChannels: channels,
+        sampleRate
+      });
+
+      const left = audioBuffer.getChannelData(0);
+      const right = channels > 1 ? audioBuffer.getChannelData(1) : left;
+
+      for (let i = 0; i < length; i++) {
+        const bass = Number(controls.bass.value);
+        const drive = Number(controls.drive.value);
+        const reverb = Number(controls.reverb.value);
+        const pitch = Number(controls.pitch.value);
+
+        const l = left[i];
+        const r = right[i];
+
+        let modL = l * bass;
+        let modR = r * bass;
+
+        modL = Math.tanh(modL * (1 + drive));
+        modR = Math.tanh(modR * (1 + drive));
+
+        const wet = (modL + modR) * 0.5 * reverb;
+        modL = modL + wet;
+        modR = modR + wet;
+
+        const p = Math.max(0.7, Math.min(1.5, pitch));
+        const sampleIndex = Math.min(length - 1, Math.floor(i * (1 / p)));
+
+        const preL = left[sampleIndex] || modL;
+        const preR = right[sampleIndex] || modR;
+
+        output.getChannelData(0)[i] = modL * 0.85 + preL * 0.15;
+        output.getChannelData(1)[i] = modR * 0.85 + preR * 0.15;
+      }
+
+      return output;
+    }
+
+    function encodeWav(audioBuffer) {
+      const numChannels = audioBuffer.numberOfChannels;
+      const sampleRate = audioBuffer.sampleRate;
+      const format = 1;
+      const bitDepth = 16;
+      const bytesPerSample = bitDepth / 8;
+      const blockAlign = numChannels * bytesPerSample;
+      const dataLength = audioBuffer.length * blockAlign;
+      const buffer = new ArrayBuffer(44 + dataLength);
+      const view = new DataView(buffer);
+
+      function writeString(offset, str) {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + dataLength, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitDepth, true);
+      writeString(36, 'data');
+      view.setUint32(40, dataLength, true);
+
+      let offset = 44;
+      for (let i = 0; i < audioBuffer.length; i++) {
+        for (let ch = 0; ch < numChannels; ch++) {
+          let sample = audioBuffer.getChannelData(ch)[i];
+          sample = Math.max(-1, Math.min(1, sample));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+          offset += 2;
+        }
+      }
+
+      return buffer;
+    }
+
+    exportBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please choose a music file first.');
+        return;
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const decoded = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+
+      const processed = createPhonkAudioBuffer(decoded);
+      const wav = encodeWav(processed);
+
+      const blob = new Blob([wav], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'phonk-export.wav';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    Object.keys(labels).forEach(key => updateValue(key));
+  </script>
+</body>
+</html>
