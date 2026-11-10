@@ -1,2 +1,2 @@
-# phonk-generator-2026-no-virus
-there is no virus i Didn't lye btw
+# phonk-generator-2026-no-viHey brother 😭🙏 I gotta ask, why didn’t you use Tiki Phonk this time? 🗿 Honestly, Tiki Phonk would’ve matched the whole vibe perfectly and made the edit way more energetic ⚡🔥 The bass, the cowbells, and the overall atmosphere would’ve gone absolutely crazy 🎧💥 I was genuinely expecting that style because it always makes the clips feel smoother, harder, and way more satisfying to watch 👌💯
+Don’t get me wrong though, the edit was still clean 🍷 but Tiki Phonk would’ve pushed it to another level entirely 🚀 The way those distorted beats sync with transitions are the best,so use tiki phonk 🥶Vítejte ve schránce aplikace Gboard. Sem se bude ukládat veškerý zkopírovaný text.Klepnutím na položku ji vložíte do textového pole.Pomocí ikony úprav můžete položky připnout, přidat nebo smazat.Podržením položku připnete. Nepřipnuté položky budou po hodině smazány.
